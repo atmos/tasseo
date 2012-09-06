@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'rack-ssl-enforcer'
 require 'haml'
+require 'sinatra_auth_github'
 
 module Tasseo
   class Application < Sinatra::Base
@@ -11,7 +12,11 @@ module Tasseo
       use Rack::SslEnforcer if ENV['FORCE_HTTPS']
     end
 
+    set :github_options, {:scopes => "public"}
+    register Sinatra::Auth::Github
+
     before do
+      github_organization_authenticate!(ENV['GITHUB_ORGANIZATION'])
       find_dashboards
     end
 
